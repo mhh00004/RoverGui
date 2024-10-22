@@ -40,8 +40,8 @@ function Cameras() {
             let horizontalGap = 20*scale;
             let verticalGap = 60*scale;
             
-            let largeCamera = 600*scale;
-            let mediumCamera = 400*scale;
+            let largeCamera = 500*scale;
+            let mediumCamera = 300*scale;
             let smallCamera = 200*scale;
 
             createCamera({left: leftPadding, top: topPadding, size: largeCamera, cameraType: "Front Camera"});
@@ -53,7 +53,6 @@ function Cameras() {
             createCamera({left: leftPadding + horizontalGap + smallCamera, top: topPadding + verticalGap + largeCamera, size: smallCamera, cameraType: "Camera #7"});
             createCamera({left: leftPadding + horizontalGap*2 + smallCamera*2, top: topPadding + verticalGap + largeCamera, size: smallCamera, cameraType: "Camera #8"});
             createCamera({left: leftPadding + horizontalGap*3 + smallCamera*3, top: topPadding + verticalGap + largeCamera, size: smallCamera, cameraType: "Camera #9"});
-            createCamera({left: leftPadding + horizontalGap*4 + smallCamera*4, top: topPadding + verticalGap + largeCamera, size: smallCamera, cameraType: "Camera #10"});
         }
     })
 
