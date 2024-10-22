@@ -1,0 +1,24 @@
+:root {
+  --medium-gray: rgb(167, 167, 167);
+  --dark-gray: #333333;
+  --gold: #EAAA00;
+  --dark-gold: #b38300;
+
+  --header-size: 1.5rem;
+
+  --nav-width: 150px;
+}
+
+body {
+  margin: 0;
+  font-family: 'League Spartan';
+  background-color: #F2F2F2;
+  padding-left: var(--nav-width);
+}
+
+.Page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
