@@ -8,37 +8,53 @@ function Cameras() {
 
     useEffect(() => {
         let page = document.getElementById('Page');
-        if (canvasRef.current && page) {
-            const initCanvas = new Canvas(canvasRef.current, {
-                width: page.offsetWidth,
-                height: page.offsetHeight-6,
-            });
-
-            initCanvas.renderAll();
-
-            setCanvas(initCanvas);
-
-            return () => {
-                initCanvas.dispose();
-            };
+        if (page) {
+            let width = page.offsetWidth;
+            let height = page.offsetHeight - 6;
+            if (canvasRef.current) {
+                const initCanvas = new Canvas(canvasRef.current, {
+                    width: width,
+                    height: height,
+                });
+    
+                initCanvas.renderAll();
+    
+                setCanvas(initCanvas);
+    
+                return () => {
+                    initCanvas.dispose();
+                };
+            }
         }
+
     }, []);
 
-    let leftPadding = 20;
-    let topPadding = 10;
-    let horizontalGap = 20;
-    let verticalGap = 60;
-
     useEffect(() => {
-        createCamera({left: leftPadding, top: topPadding, size: 600, cameraType: "Front Camera"});
-        createCamera({left: leftPadding + 600 + horizontalGap, top: topPadding, size: 600, cameraType: "Back Camera"});
-        createCamera({left: leftPadding + 1200 + horizontalGap*2, top: topPadding, size: 400, cameraType: "Arm Camera"});
-        createCamera({left: leftPadding + 1200 + horizontalGap*2, top: topPadding + 400 + verticalGap, size: 200, cameraType: "Camera #4"});
-        createCamera({left: leftPadding + 1400 + horizontalGap*3, top: topPadding + 400 + verticalGap, size: 200, cameraType: "Camera #5"});
-        createCamera({left: leftPadding, top: topPadding + 600 + verticalGap, size: 200, cameraType: "Camera #6"});
-        createCamera({left: leftPadding + 200 + horizontalGap, top: topPadding + 600 + verticalGap, size: 200, cameraType: "Camera #8"});
-        createCamera({left: leftPadding + 400 + horizontalGap*2, top: topPadding + 600 + verticalGap, size: 200, cameraType: "Camera #9"});
-        createCamera({left: leftPadding + 600 + horizontalGap*3, top: topPadding + 600 + verticalGap, size: 200, cameraType: "Camera #10"});
+        let page = document.getElementById('Page');
+        if (page) {
+            let width = page.offsetWidth;
+            let scale = width/1770;
+            
+            let leftPadding = 20*scale;
+            let topPadding = 10*scale;
+            let horizontalGap = 20*scale;
+            let verticalGap = 60*scale;
+            
+            let largeCamera = 600*scale;
+            let mediumCamera = 400*scale;
+            let smallCamera = 200*scale;
+
+            createCamera({left: leftPadding, top: topPadding, size: largeCamera, cameraType: "Front Camera"});
+            createCamera({left: leftPadding + horizontalGap + largeCamera, top: topPadding, size: largeCamera, cameraType: "Back Camera"});
+            createCamera({left: leftPadding + horizontalGap*2 + largeCamera*2, top: topPadding, size: mediumCamera, cameraType: "Arm Camera"});
+            createCamera({left: leftPadding + horizontalGap*2 + largeCamera*2, top: topPadding + verticalGap + mediumCamera, size: smallCamera, cameraType: "Camera #4"});
+            createCamera({left: leftPadding + horizontalGap*3 + largeCamera*2 + smallCamera, top: topPadding + verticalGap + mediumCamera, size: smallCamera, cameraType: "Camera #5"});
+            createCamera({left: leftPadding, top: topPadding + verticalGap + largeCamera, size: smallCamera, cameraType: "Camera #6"});
+            createCamera({left: leftPadding + horizontalGap + smallCamera, top: topPadding + verticalGap + largeCamera, size: smallCamera, cameraType: "Camera #7"});
+            createCamera({left: leftPadding + horizontalGap*2 + smallCamera*2, top: topPadding + verticalGap + largeCamera, size: smallCamera, cameraType: "Camera #8"});
+            createCamera({left: leftPadding + horizontalGap*3 + smallCamera*3, top: topPadding + verticalGap + largeCamera, size: smallCamera, cameraType: "Camera #9"});
+            createCamera({left: leftPadding + horizontalGap*4 + smallCamera*4, top: topPadding + verticalGap + largeCamera, size: smallCamera, cameraType: "Camera #10"});
+        }
     })
 
     const createCamera = ({left, top, size, cameraType} : {left:number, top: number, size: number, cameraType: string}) => {
