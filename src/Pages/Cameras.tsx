@@ -5,7 +5,7 @@ import { Canvas, FabricText, Rect, Group, Path, Circle } from "fabric";
 function Cameras() {
     const canvasRef = useRef(null);
     const [canvas, setCanvas] = useState<Canvas | null>(null);
-    const cameraList = ["Front Camera", "Back Camera", "Arm Camera", "Camera #4", "Camera #5", "Camera #6", "Camera #7", "Camera #8", "Camera #9"];
+    const cameraList = ["Front Camera", "Back Camera", "Arm Camera", "Camera #4", "Camera #5", "Camera #6", "Camera #7"];
 
     // Fabric JS Canvas initialization
     useEffect(() => {
