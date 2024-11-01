@@ -106,6 +106,24 @@ function Cameras() {
         }
     }
 
+    // Capture and downloads an image of a section of the canvas
+    const captureScreen = (camera: FabricObject) => {
+        if (canvas) {
+            let dataUrl = canvas.toDataURL({
+                format: 'png',
+                multiplier: 2,
+                top: camera.top,
+                left: camera.left,
+                width: camera.width * camera.scaleX,
+                height: camera.height * camera.scaleY,
+            });
+            let temp = document.createElement("a");
+            temp.download = "Screenshot.png";
+            temp.href = dataUrl;
+            temp.click();
+        }
+    }
+
     // Creates a camera canvas element
     const createCamera = (left: number, top: number, scale: number, cameraType: string, setActive?: boolean) => {
         if (canvas) {
@@ -118,6 +136,7 @@ function Cameras() {
                 stroke: "white", strokeWidth: 1,
             });
             // Selector at the top left
+            let padding = (30-20)/2;
             let selectedColors = ["#EFEFEF", "#B398FC"];
             let selected = new Rect({
                 top: 0, left: 0,
@@ -147,8 +166,27 @@ function Cameras() {
                 hoverCursor: "pointer",
             });
             addHoverListeners(exit, exit, exitColors[0], exitColors[1]);
-            // Groups everything in the black bar
-            let padding = (30-20)/2;
+            // screenshot button
+            let screenshotColors = ["#E0E0E0", "#EFEFEF"];
+            let screenshotBackground = new Rect({
+                top: 0, left: 0,
+                width: 90, height: 20,
+                fill: screenshotColors[0],
+                rx: 2, ry:2,
+            });
+            let screenshotText = new FabricText("Screenshot", {
+                top: 10, left: 45,
+                originX: "center", originY: "center",
+                fontSize: 14, fontFamily: "League Spartan", fontWeight: "bold",
+            });
+            let screenshot = new Group([screenshotBackground, screenshotText], {
+                top: padding, left: -90,
+                hoverCursor: "pointer",
+                subTargetCheck: true,
+            });
+            addHoverListeners(screenshot, screenshotBackground, screenshotColors[0], screenshotColors[1]);
+
+            // Groups everything in the selector
             let dropdown = new Group([selected, selectedText, arrow], {
                 top: padding, left: -size/2 + padding,
                 hoverCursor: "pointer",
@@ -224,7 +262,7 @@ function Cameras() {
             });
 
             // Groups the entire camera together
-            let group = new Group([camera, topBar, dropdown, dropdownMenu, exit], {
+            let group = new Group([camera, topBar, dropdown, dropdownMenu, exit, screenshot], {
                 left: left,
                 top: top,
                 subTargetCheck: true,
@@ -236,6 +274,9 @@ function Cameras() {
             });
             exit.on("mousedown", () => {
                 canvas.remove(group);
+            });
+            screenshot.on("mousedown", () => {
+                captureScreen(group);
             });
 
             // Hides the vertical/horizontal scaling selectors, leaving only the corners
