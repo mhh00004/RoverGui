@@ -180,7 +180,7 @@ function Cameras() {
                 fontSize: 14, fontFamily: "League Spartan", fontWeight: "bold",
             });
             let screenshot = new Group([screenshotBackground, screenshotText], {
-                top: padding, left: -90,
+                top: padding, left: -size/2 + padding*2 + selected.width,
                 hoverCursor: "pointer",
                 subTargetCheck: true,
             });
