@@ -1,27 +1,26 @@
 import "./Cameras.css"
 import { useRef, useState, useEffect } from "react";
-import { Canvas, FabricText, Rect, Group, Path, Circle } from "fabric";
+import { Canvas, FabricText, Rect, Group, Path, Circle, FabricObject } from "fabric";
 
 function Cameras() {
     const canvasRef = useRef(null);
     const [canvas, setCanvas] = useState<Canvas | null>(null);
     const cameraList = ["Front Camera", "Back Camera", "Arm Camera", "Camera #4", "Camera #5", "Camera #6", "Camera #7"];
+    let scale: number, size: number;
 
     // Fabric JS Canvas initialization
     useEffect(() => {
         let page = document.getElementById("Page");
-        if (page) {
-            if (canvasRef.current) {
-                const initCanvas = new Canvas(canvasRef.current, {
-                    width: page.offsetWidth,
-                    height: page.offsetHeight,
-                });
-                initCanvas.renderAll();
-                setCanvas(initCanvas);
-                return () => {
-                    initCanvas.dispose();
-                };
-            }
+        if (canvasRef.current) {
+            const initCanvas = new Canvas(canvasRef.current, {
+                width: page?.offsetWidth,
+                height: page?.offsetHeight,
+            });
+            initCanvas.renderAll();
+            setCanvas(initCanvas);
+            return () => {
+                initCanvas.dispose();
+            };
         }
     }, []);
 
@@ -30,31 +29,24 @@ function Cameras() {
         let page = document.getElementById("Page");
         if (page) {
             let width = page.offsetWidth;
-            let scale = width/1770;
-            
-            let leftPadding = 20*scale;
-            let topPadding = 10*scale;
-            let horizontalGap = 20*scale;
-            let verticalGap = 50*scale;
-            
-            let size = 500*scale;
-
-            createCamera({left: leftPadding, top: topPadding, size: size, scale: 1.0, cameraType: cameraList[0]});
-            createCamera({left: leftPadding + horizontalGap + size*1.0, top: topPadding, size: size, scale: 1.0, cameraType: cameraList[1]});
-            createCamera({left: leftPadding + horizontalGap*2 + size*2*1.0, top: topPadding, size: size, scale: 0.75, cameraType: cameraList[2]});
-            createCamera({left: leftPadding + horizontalGap*2 + size*2*1.0, top: topPadding + verticalGap + size*0.75, size: size, scale: 0.75, cameraType: cameraList[3]});
-            createCamera({left: leftPadding, top: topPadding + verticalGap + size*1.0, size: size, scale: 0.6, cameraType: cameraList[4]});
-            createCamera({left: leftPadding + horizontalGap + size*0.6, top: topPadding + verticalGap + size*1.0, size: size, scale: 0.6, cameraType: cameraList[5]});
-            createCamera({left: leftPadding + horizontalGap*2 + size*2*0.6, top: topPadding + verticalGap + size*1.0, size: size, scale: 0.6, cameraType: cameraList[6]});
-
+            scale = width/1770;
+            let [leftPadding, topPadding] = [20*scale, 10*scale];
+            let [horizontalGap, verticalGap] = [20*scale, 50*scale];
+            size = 500*scale; // Camera Size
+            createCamera(leftPadding+horizontalGap*0+size*0*1.0, topPadding, 1.0, cameraList[0]);
+            createCamera(leftPadding+horizontalGap*1+size*1*1.0, topPadding, 1.0, cameraList[1]);
+            createCamera(leftPadding+horizontalGap*2+size*2*1.0, topPadding, 0.75, cameraList[2]);
+            createCamera(leftPadding+horizontalGap*2+size*2*1.0, topPadding+verticalGap+size*0.75, 0.75, cameraList[3]);
+            createCamera(leftPadding+horizontalGap*0+size*0*1.0, topPadding+verticalGap+size*1.0, 0.6, cameraList[4]);
+            createCamera(leftPadding+horizontalGap*1+size*1*0.6, topPadding+verticalGap+size*1.0, 0.6, cameraList[5]);
+            createCamera(leftPadding+horizontalGap*2+size*2*0.6, topPadding+verticalGap+size*1.0, 0.6, cameraList[6]);
             addButton();
         }
         // Logic to prevent object dragging out of canvas boundaries
         if (canvas) {
             canvas.on("object:moving", (options: any) => {
                 let obj = options.target;
-                let width = obj.width * obj.scaleX;
-                let height = obj.height * obj.scaleY;
+                let [width, height] = [obj.width * obj.scaleX, obj.height * obj.scaleY];
                 // Horizontal
                 if (obj.left < 0) {
                     obj.left = 0;
@@ -69,153 +61,111 @@ function Cameras() {
                 }
             });
         }
-    })
+    });
+
+    // Helper function for simple default and hover colors
+    const addHoverListeners = (hoverObject: FabricObject, colorObject: FabricObject, defaultColor: string, hoverColor: string) => {
+        hoverObject.on("mouseover", () => {
+            colorObject.set("fill", hoverColor);
+            colorObject.set("stroke", hoverColor);
+            canvas?.renderAll();
+        });
+        hoverObject.on("mouseout", () => {
+            colorObject.set("fill", defaultColor);
+            colorObject.set("stroke", defaultColor);
+            canvas?.renderAll();
+        });
+    }
 
     // Add button in the top right
     const addButton = () => {
         if (canvas) {
-            let circleColors = ["#4EBC3B", "#60E549"];
+            let circleColors = ["#4EBC3B", "#60E549"]; // default, hover
             let circle = new Circle({
                 fill: circleColors[0],
-                originX: "center",
-                originY: "center",
+                originX: "center", originY: "center",
                 radius: 20,
             });
             let cross = new Path("M -6 0 L 6 0 M 0 -6 L 0 6", {
-                strokeWidth: 3,
-                stroke: "white",
-                strokeLineCap: "round",
-                originX: "center",
-                originY: "center",
-                top: 0,
-                left: 0,
+                top: 0, left: 0,
+                stroke: "white", strokeWidth: 3, strokeLineCap: "round",
+                originX: "center", originY: "center",
             });
             let button = new Group([circle, cross], {
-                left: canvas.width - 50,
-                top: 10,
+                top: 10, left: canvas.width - 50,
                 hoverCursor: "pointer",
                 subTargetCheck: true,
                 selectable: false,
             });
-            button.on("mouseover", () => {
-                circle.set("fill", circleColors[1]);
-                canvas.renderAll();
-            });
-            button.on("mouseout", () => {
-                circle.set("fill", circleColors[0]);
-                canvas.renderAll();
-            });
+            addHoverListeners(button, circle, circleColors[0], circleColors[1]);
             button.on("mousedown", () => {
-                let page = document.getElementById("Page");
-                if (page) {
-                    let width = page.offsetWidth;
-                    let scale = width/1770;                    
-                    let size = 500*scale;
-                    createCamera({left: 20, top: 10, size: size, scale: 1.0, cameraType: cameraList[0], setActive: true});
-                    canvas.renderAll();
-                }
+                createCamera(20, 10, 1.0, cameraList[0], true);
+                canvas.renderAll();
             });
             canvas.add(button);
         }
     }
 
     // Creates a camera canvas element
-    const createCamera = ({left, top, size, scale, cameraType, setActive} : {left:number, top: number, size: number, scale: number, cameraType: string, setActive?: boolean}) => {
+    const createCamera = (left: number, top: number, scale: number, cameraType: string, setActive?: boolean) => {
         if (canvas) {
-            let camera = new Rect({
-                left: 0,
-                top: 30,
-                originX: "center",
-                width: size,
-                height: size,
-                fill: "#636363",
-                stroke: "white",
-                strokeWidth: 1,
-            });
-
             // Black bar on top of each camera
             let topBar = new Rect({
-                left: 0,
-                top: 0,
+                top: 0, left: 0,
                 originX: "center",
-                width: size,
-                height: 30,
+                width: size, height: 30,
                 fill: "#2D2D2D",
-                stroke: "white",
-                strokeWidth: 1,
+                stroke: "white", strokeWidth: 1,
             });
+            // Selector at the top left
             let selectedColors = ["#EFEFEF", "#B398FC"];
             let selected = new Rect({
-                left: 0,
-                top: 0,
-                width: 150,
-                height: 20,
+                top: 0, left: 0,
+                width: 150, height: 20,
                 fill: "white",
-                stroke: selectedColors[0],
-                strokeWidth: 1,
-                rx: 2,
-                ry: 2,
+                stroke: selectedColors[0], strokeWidth: 1,
+                rx: 2, ry:2,
             });
             let selectedText = new FabricText(cameraType, {
-                fontSize: 14,
+                top: 10, left: 5,
                 originY: "center",
-                left: 5,
-                top: 10,
-                fontFamily: "League Spartan",
-                fontWeight: "bold",
+                fontSize: 14, fontFamily: "League Spartan", fontWeight: "bold",
             });
             let arrow = new Path("M 0 0 L -6 6 M 0 0 L 6 6", {
-                strokeWidth: 3,
-                stroke: "#494949",
-                strokeLineCap: "round",
-                originX: "center",
-                originY: "center",
-                top: 10,
-                left: 135,
+                top: 10, left: 135,
+                originX: "center", originY: "center",
                 angle: 180,
+                stroke: "#494949", strokeWidth: 3, strokeLineCap: "round",
             });
+            // Close Camera Button
             let exitColors = ["#FF5959", "#FF8C8C"];
             let exit = new Path("M -6 -6 L 6 6 M -6 6 L 6 -6", {
-                strokeWidth: 3,
-                stroke: "#FF5959",
-                strokeLineCap: "round",
-                originX: "center",
-                originY: "center",
-                top: 15,
-                left: size/2 - 20,
+                top: 15, left: size/2-20,
+                originX: "center", originY: "center",
                 angle: 180,
+                stroke: "#FF5959", strokeWidth: 3, strokeLineCap: "round",
                 hoverCursor: "pointer",
             });
-            exit.on("mouseover", () => {
-                exit.stroke = exitColors[1];
-                canvas.renderAll();
-            });
-            exit.on("mouseout", () => {
-                exit.stroke = exitColors[0];
-                canvas.renderAll();
-            });
+            addHoverListeners(exit, exit, exitColors[0], exitColors[1]);
+            // Groups everything in the black bar
             let padding = (30-20)/2;
             let dropdown = new Group([selected, selectedText, arrow], {
-                left: -size/2 + padding,
-                top: padding,
+                top: padding, left: -size/2 + padding,
                 hoverCursor: "pointer",
                 subTargetCheck: true,
             });
 
+            // Dropdown Menu
             let dropdownBorder = new Rect({
-                left: 0,
-                top: 0,
-                width: 150,
-                height: 20 * cameraList.length - cameraList.length + 1,
+                top: 0, left: 0,
+                width: 150, height: 20*cameraList.length-cameraList.length+1,
                 fill: "transparent",
-                strokeWidth: 1,
-                stroke: selectedColors[1],
+                stroke: selectedColors[1], strokeWidth: 1,
                 selectable: false,
             });
             let menuMargin = 25;
             let dropdownMenu = new Group([dropdownBorder], {
-                left: -size/2 + padding,
-                top: menuMargin,
+                top: menuMargin, left: -size/2 + padding,
                 hoverCursor: "pointer",
                 subTargetCheck: true,
                 visible: false,
@@ -223,23 +173,17 @@ function Cameras() {
             for (let i = 0; i < cameraList.length; i++) {
                 let hoverColor = "#ECF1FE";
                 let dropdownItemBackground = new Rect({
-                    left: 0,
-                    top: 0,
-                    width: 150,
-                    height: 20,
+                    top: 0, left: 0,
+                    width: 150, height: 20,
                     fill: "white",
                 });
                 let dropdownItemText = new FabricText(cameraList[i], {
-                    fontSize: 14,
+                    top: 10, left: 5,
                     originY: "center",
-                    left: 5,
-                    top: 10,
-                    fontFamily: "League Spartan",
-                    fontWeight: "bold",
+                    fontSize: 14, fontFamily: "League Spartan", fontWeight: "bold",
                 });
                 let dropdownItem = new Group([dropdownItemBackground, dropdownItemText], {
-                    left: -size/2 + padding,
-                    top: menuMargin + i * 19,
+                    top: menuMargin + i * 19, left: -size/2 + padding,
                     subTargetCheck: true,
                 });
                 dropdownItem.on("mouseover", () => {
@@ -261,17 +205,25 @@ function Cameras() {
             }
             dropdown.on("mouseover", () => {
                 selected.stroke = selectedColors[1];
-                arrow.angle = 0;
                 dropdownMenu.visible = true;
                 canvas.renderAll();
             });
             dropdown.on("mouseout", () => {
                 selected.stroke = selectedColors[0];
-                arrow.angle = 180;
                 dropdownMenu.visible = false;
                 canvas.renderAll();
             });
 
+            // Camera
+            let camera = new Rect({
+                top: 30, left: 0,
+                originX: "center",
+                width: size, height: size,
+                fill: "#636363",
+                stroke: "white", strokeWidth: 1,
+            });
+
+            // Groups the entire camera together
             let group = new Group([camera, topBar, dropdown, dropdownMenu, exit], {
                 left: left,
                 top: top,
